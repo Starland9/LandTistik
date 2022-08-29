@@ -1,0 +1,498 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>829</width>
+    <height>623</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Lantistick</string>
+  </property>
+  <property name="windowIcon">
+   <iconset>
+    <normaloff>:/icons/icons8-statistic-64.png</normaloff>:/icons/icons8-statistic-64.png</iconset>
+  </property>
+  <property name="styleSheet">
+   <string notr="true">color: rgb(255, 255, 255);
+background-color: rgb(33, 37, 41);
+
+
+</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QGridLayout" name="gridLayout_3">
+    <item row="0" column="0">
+     <widget class="QTableWidget" name="tab">
+      <property name="sortingEnabled">
+       <bool>false</bool>
+      </property>
+      <row>
+       <property name="text">
+        <string>TOTAL</string>
+       </property>
+      </row>
+      <column>
+       <property name="text">
+        <string>Modaltés (Xi)</string>
+       </property>
+      </column>
+     </widget>
+    </item>
+    <item row="1" column="0">
+     <layout class="QHBoxLayout" name="horizontalLayout">
+      <item>
+       <widget class="QPushButton" name="btn_add">
+        <property name="styleSheet">
+         <string notr="true">*{
+    height: 25px;
+    width: 150px;
+    color: rgb(255, 255, 255);
+
+}
+
+*{
+    background-color: rgba(30, 113, 14, 0.784);
+}
+:hover{
+    background-color: rgba(77, 160, 13, 0.874);
+}</string>
+        </property>
+        <property name="text">
+         <string>Ajouter une ligne</string>
+        </property>
+        <property name="icon">
+         <iconset theme="add">
+          <normaloff>.</normaloff>.</iconset>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="btn_complete_tab">
+        <property name="styleSheet">
+         <string notr="true">*{
+    height: 25px;
+    width: 150px;
+    color: rgb(255, 255, 255);
+
+}
+
+*{
+    background-color: rgba(28, 103, 143, 0.649);
+
+}
+
+:hover{
+    background-color: rgba(28, 112, 157, 0.81);
+}</string>
+        </property>
+        <property name="text">
+         <string>Completer le tableau</string>
+        </property>
+        <property name="icon">
+         <iconset theme="accessories-calculator">
+          <normaloff>.</normaloff>.</iconset>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="btnDiagrammes">
+        <property name="styleSheet">
+         <string notr="true">*{
+    height: 25px;
+    width: 150px;
+    color: rgb(255, 255, 255);
+
+}
+
+*{
+    background-color: rgba(28, 103, 143, 0.649);
+
+}
+
+:hover{
+    background-color: rgba(28, 112, 157, 0.81);
+}</string>
+        </property>
+        <property name="text">
+         <string>Voir les diagrammes</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <spacer name="horizontalSpacer">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+     </layout>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>829</width>
+     <height>22</height>
+    </rect>
+   </property>
+   <property name="minimumSize">
+    <size>
+     <width>0</width>
+     <height>0</height>
+    </size>
+   </property>
+   <property name="layoutDirection">
+    <enum>Qt::LeftToRight</enum>
+   </property>
+   <property name="autoFillBackground">
+    <bool>false</bool>
+   </property>
+   <property name="styleSheet">
+    <string notr="true"/>
+   </property>
+   <property name="defaultUp">
+    <bool>false</bool>
+   </property>
+   <property name="nativeMenuBar">
+    <bool>true</bool>
+   </property>
+   <widget class="QMenu" name="menu_Fichier">
+    <property name="title">
+     <string>&amp;Fichier</string>
+    </property>
+    <addaction name="actionNouveau"/>
+    <addaction name="action_Ouvrir"/>
+    <addaction name="separator"/>
+    <addaction name="action_Enregistrer"/>
+    <addaction name="actionEnregistrer_sous"/>
+    <addaction name="separator"/>
+    <addaction name="actionQuitter"/>
+   </widget>
+   <widget class="QMenu" name="menu_Edition">
+    <property name="title">
+     <string>&amp;Edition</string>
+    </property>
+    <addaction name="action_Reinitialiser_les_donn_es"/>
+   </widget>
+   <widget class="QMenu" name="menuDiagrammes">
+    <property name="title">
+     <string>&amp;Diagrammes</string>
+    </property>
+    <widget class="QMenu" name="menuLin_aire">
+     <property name="title">
+      <string>Linéaire</string>
+     </property>
+     <addaction name="actionTrac"/>
+     <addaction name="actionCourb"/>
+    </widget>
+    <addaction name="actionBandes"/>
+    <addaction name="menuLin_aire"/>
+    <addaction name="actionCamamberg"/>
+    <addaction name="actionNuage_de_points"/>
+   </widget>
+   <widget class="QMenu" name="menu_Aide">
+    <property name="title">
+     <string>&amp;Aide</string>
+    </property>
+    <addaction name="actionVos_avis"/>
+    <addaction name="separator"/>
+    <addaction name="actionA_prop_os"/>
+   </widget>
+   <widget class="QMenu" name="menuTableau">
+    <property name="title">
+     <string>&amp;Tableau</string>
+    </property>
+    <addaction name="actionEffectifs"/>
+    <addaction name="actionF_quences"/>
+    <addaction name="separator"/>
+    <addaction name="actionCentre"/>
+    <addaction name="actionAmplitude"/>
+    <addaction name="actionDensit"/>
+   </widget>
+   <widget class="QMenu" name="menu_Personnalisation">
+    <property name="title">
+     <string>&amp;Personnalisation</string>
+    </property>
+    <widget class="QMenu" name="menu_Theme">
+     <property name="title">
+      <string>&amp;Theme</string>
+     </property>
+     <addaction name="action_Clair"/>
+     <addaction name="action_Sombre"/>
+    </widget>
+    <addaction name="menu_Theme"/>
+    <addaction name="actionCouleurs_de_lignes"/>
+   </widget>
+   <addaction name="menu_Fichier"/>
+   <addaction name="menu_Edition"/>
+   <addaction name="menuTableau"/>
+   <addaction name="menuDiagrammes"/>
+   <addaction name="menu_Personnalisation"/>
+   <addaction name="menu_Aide"/>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+  <widget class="QDockWidget" name="dockWidget">
+   <attribute name="dockWidgetArea">
+    <number>2</number>
+   </attribute>
+   <widget class="QWidget" name="dockWidgetContents">
+    <layout class="QGridLayout" name="gridLayout">
+     <item row="0" column="0">
+      <widget class="QGroupBox" name="groupBox">
+       <property name="title">
+        <string>Parametres</string>
+       </property>
+       <layout class="QGridLayout" name="gridLayout_2">
+        <item row="0" column="0">
+         <layout class="QFormLayout" name="formLayout">
+          <item row="0" column="0">
+           <widget class="QLabel" name="moyenneArithmetiqueLabel">
+            <property name="text">
+             <string>Moyenne arithmetique : </string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QLabel" name="moyenneGOmTriqueLabel">
+            <property name="text">
+             <string>Moyenne géométrique : </string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QDoubleSpinBox" name="moyenneGOmTriqueDoubleSpinBox">
+            <property name="maximum">
+             <double>99999999.989999994635582</double>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QDoubleSpinBox" name="moyenne_artihmetique_double_spin">
+            <property name="maximum">
+             <double>99999999.989999994635582</double>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0">
+           <widget class="QLabel" name="tauxDeVariationLabel">
+            <property name="text">
+             <string>Taux de variation : </string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="1">
+           <widget class="QDoubleSpinBox" name="tauxDeVariationDoubleSpinBox">
+            <property name="maximum">
+             <double>999999.989999999990687</double>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+       </layout>
+      </widget>
+     </item>
+     <item row="1" column="0">
+      <widget class="QPushButton" name="btn_calcul_params">
+       <property name="styleSheet">
+        <string notr="true">*{
+    height: 25px;
+    width: 150px;
+    color: rgb(255, 255, 255);
+
+}
+
+*{
+    background-color: rgba(28, 103, 143, 0.649);
+
+}
+
+:hover{
+    background-color: rgba(28, 112, 157, 0.81);
+}</string>
+       </property>
+       <property name="text">
+        <string>Calculer</string>
+       </property>
+       <property name="icon">
+        <iconset theme="accessories-calculator">
+         <normaloff>.</normaloff>.</iconset>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+  </widget>
+  <action name="actionNouveau">
+   <property name="icon">
+    <iconset theme="document-new">
+     <normaloff>.</normaloff>.</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;Nouveau</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+N</string>
+   </property>
+  </action>
+  <action name="action_Ouvrir">
+   <property name="icon">
+    <iconset theme="document-open">
+     <normaloff>.</normaloff>.</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;Ouvrir</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+O</string>
+   </property>
+  </action>
+  <action name="action_Enregistrer">
+   <property name="icon">
+    <iconset theme="document-save">
+     <normaloff>.</normaloff>.</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;Enregistrer</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+S</string>
+   </property>
+  </action>
+  <action name="actionQuitter">
+   <property name="icon">
+    <iconset theme="application-exit">
+     <normaloff>.</normaloff>.</iconset>
+   </property>
+   <property name="text">
+    <string>Quitter</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Q</string>
+   </property>
+  </action>
+  <action name="action_Reinitialiser_les_donn_es">
+   <property name="icon">
+    <iconset theme="edit-clear">
+     <normaloff>.</normaloff>.</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;Reinitialiser les données</string>
+   </property>
+  </action>
+  <action name="actionA_prop_os">
+   <property name="icon">
+    <iconset theme="help-about">
+     <normaloff>.</normaloff>.</iconset>
+   </property>
+   <property name="text">
+    <string>A prop&amp;os</string>
+   </property>
+  </action>
+  <action name="actionEnregistrer_sous">
+   <property name="icon">
+    <iconset theme="document-save-as">
+     <normaloff>.</normaloff>.</iconset>
+   </property>
+   <property name="text">
+    <string>Enregistrer-&amp;sous</string>
+   </property>
+  </action>
+  <action name="actionEffectifs">
+   <property name="text">
+    <string>Ajouter les éffectifs</string>
+   </property>
+  </action>
+  <action name="actionF_quences">
+   <property name="text">
+    <string>Ajouter les fréquences</string>
+   </property>
+  </action>
+  <action name="actionDensit">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Ajouter les densités</string>
+   </property>
+  </action>
+  <action name="actionAmplitude">
+   <property name="text">
+    <string>Ajouter les amplitudes</string>
+   </property>
+  </action>
+  <action name="actionCentre">
+   <property name="text">
+    <string>Ajouter les centres</string>
+   </property>
+  </action>
+  <action name="actionBandes">
+   <property name="text">
+    <string>Bandes</string>
+   </property>
+  </action>
+  <action name="actionCamamberg">
+   <property name="text">
+    <string>Camamberg</string>
+   </property>
+  </action>
+  <action name="actionVos_avis">
+   <property name="icon">
+    <iconset theme="face-cool">
+     <normaloff>.</normaloff>.</iconset>
+   </property>
+   <property name="text">
+    <string>Vos avis</string>
+   </property>
+  </action>
+  <action name="actionNuage_de_points">
+   <property name="text">
+    <string>Nuage de points</string>
+   </property>
+  </action>
+  <action name="actionTrac">
+   <property name="text">
+    <string>Tracé</string>
+   </property>
+  </action>
+  <action name="actionCourb">
+   <property name="text">
+    <string>Courbé</string>
+   </property>
+  </action>
+  <action name="action_Clair">
+   <property name="text">
+    <string>&amp;Clair</string>
+   </property>
+  </action>
+  <action name="action_Sombre">
+   <property name="text">
+    <string>&amp;Sombre</string>
+   </property>
+  </action>
+  <action name="actionCouleurs_de_lignes">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Couleurs de lignes</string>
+   </property>
+  </action>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

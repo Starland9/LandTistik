@@ -1,0 +1,30 @@
+:hover{
+
+}
+
+/* CSS de mes bouttons */
+*{
+    height: 25px;
+    width: 150px;
+    color: rgb(255, 255, 255);
+
+}
+
+/* bouttons de calcul */
+*{
+    background-color: rgba(28, 103, 143, 0.649);
+}
+:hover{
+    background-color: rgba(28, 112, 157, 0.81);
+    cursor: grab;
+}
+
+
+/* bouttons d'ajout */
+*{
+    background-color: rgba(30, 113, 14, 0.784);
+}
+:hover{
+    background-color: rgba(77, 160, 13, 0.874);
+    cursor: grab;
+}
