@@ -3,3 +3,5 @@
 landry.ltk
 landlog.txt
 Eui/__pycache__/diagrammes.cpython-310.pyc
+Eui/__pycache__/diagrammes.cpython-310.pyc
+*.pyc
