@@ -1,30 +1,19 @@
-import datetime
+from PyQt6.QtWidgets import QTableWidget
 
-from PyQt6.QtWidgets import QTableWidget, QFileDialog
-
-global_filter = "Fichier Landtistik (*.ltk)"
+global_filter = "LandTistik File (*.ltk)"
 
 
-def open_file(self, tableau: QTableWidget):
+def open_file(table: QTableWidget):
     pass
 
 
 def error(cause: Exception):
-    txt = f"""
-    ------------------------------------------------------------------------------
-    Problème survenu le {datetime.datetime.now()}
-    Énoncé : {cause.__str__()}
-    Trace: {cause.__traceback__.tb_frame}
-    ------------------------------------------------------------------------------
-    """
-
-    with open("landlog.txt", "a") as file:
-        file.write(txt)
-
-
-def save_file(nom_du_fichier: str, tableau: QTableWidget):
     pass
 
 
-def save_file_as(self, tableau: QTableWidget):
+def save_file(filename: str, table: QTableWidget):
+    pass
+
+
+def save_file_as(table: QTableWidget):
     pass
