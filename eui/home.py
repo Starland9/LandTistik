@@ -13,7 +13,8 @@ from PyQt6.QtGui import QKeySequence, QShortcut
 from models.Tableau_statistique import (
     ControlTableau, FusionType,
     completer_colones, donner_les_totaux, inserer_colone,
-    nettoyer_tableau, obtenir_tableau_grace_au_nom, TypeModalite
+    nettoyer_tableau, obtenir_tableau_grace_au_nom, TypeModalite,
+    colonne_existe, initialiser_entete_par_defaut
 )
 from models.Entete import textes as noms_colones
 from models.Entre_sorti import (
@@ -43,6 +44,7 @@ class Home(QMainWindow, home.Ui_MainWindow):
     def _configurer_interface(self):
         """Configure les éléments supplémentaires de l'interface."""
         # Activer les alternances de couleurs dans le tableau
+        initialiser_entete_par_defaut(self.tab)
         self.tab.setAlternatingRowColors(True)
         self.tab.horizontalHeader().setStretchLastSection(True)
 
@@ -385,12 +387,26 @@ class Home(QMainWindow, home.Ui_MainWindow):
 
     def voir_diagrammes(self, type_diagramme: str = "bandes"):
         """Affiche les diagrammes dans une nouvelle fenêtre."""
+        if not colonne_existe(self.tab, noms_colones.effectif):
+            QMessageBox.information(
+                self,
+                "Diagrammes",
+                "Ajoutez d'abord la colonne des effectifs via Tableau > Effectifs."
+            )
+            return
         if not self.completer_le_tableau():
             return
-        self.window_diagrammes = diagrammes.Diagrammes(self.tab)
-        # doit précéder afficher() pour initialiser le rendu Qt
+        try:
+            donnees = diagrammes.preparer_donnees(self.tab)
+        except ValueError as exc:
+            QMessageBox.warning(self, "Diagrammes", str(exc))
+            return
+
+        self.window_diagrammes = diagrammes.Diagrammes(donnees, self)
         self.window_diagrammes.show()
         self.window_diagrammes.afficher(type_diagramme)
+        self.window_diagrammes.raise_()
+        self.window_diagrammes.activateWindow()
 
     # ─── Thèmes ───────────────────────────────────────────────────────────────
 

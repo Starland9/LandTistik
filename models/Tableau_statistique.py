@@ -10,6 +10,11 @@ from models.Entete import entete_et_index, liste_entete, textes
 from models.Entre_sorti import erreur
 
 
+_ALIASES_ENTETES = {
+    textes.modalite: {"Modaltés (Xi)", "Modalités (Xi)"},
+}
+
+
 def nettoyer_tableau(tableau: QTableWidget):
     """
     Fonction permettant de nettoyer le tableau
@@ -34,7 +39,36 @@ def remplir_le_tableau_au_debut(tableau: QTableWidget):
     tableau.insertColumn(1)
     for row in range(tableau.rowCount() - 1):
         for col in range(tableau.columnCount()):
-            tableau.setItem(row, col, QTableWidgetItem(f"{(55 + row) * col + row}" + (f" mod" if col == 0 else "0")))
+            tableau.setItem(row, col, QTableWidgetItem(
+                f"{(55 + row) * col + row}" + (f" mod" if col == 0 else "0")))
+
+
+def initialiser_entete_par_defaut(tableau: QTableWidget):
+    """Assure que la première colonne est celle des modalités."""
+    if tableau.columnCount() == 0:
+        tableau.insertColumn(0)
+    tableau.setHorizontalHeaderItem(0, QTableWidgetItem(textes.modalite))
+
+
+def obtenir_indice_colonne(tableau: QTableWidget, nom_colonne: str | None = None, indice: int | None = None):
+    """Retourne l'indice réel d'une colonne dans le tableau."""
+    if indice is not None:
+        return indice if 0 <= indice < tableau.columnCount() else None
+
+    if nom_colonne is None:
+        return None
+
+    cibles = {nom_colonne, *_ALIASES_ENTETES.get(nom_colonne, set())}
+    for col in range(tableau.columnCount()):
+        header_item = tableau.horizontalHeaderItem(col)
+        if header_item and header_item.text() in cibles:
+            return col
+    return None
+
+
+def colonne_existe(tableau: QTableWidget, nom_colonne: str) -> bool:
+    """Indique si une colonne donnée existe réellement dans le tableau."""
+    return obtenir_indice_colonne(tableau, nom_colonne=nom_colonne) is not None
 
 
 def obtenir_tableau_grace_au_nom(tableau_des_donnes: QTableWidget, nom_colonne=None, indice=None):
@@ -47,17 +81,26 @@ def obtenir_tableau_grace_au_nom(tableau_des_donnes: QTableWidget, nom_colonne=N
     :return:
     """
 
-    if nom_colonne:
-        col = entete_et_index[nom_colonne]
-    else:
-        col = indice
+    col = obtenir_indice_colonne(
+        tableau_des_donnes, nom_colonne=nom_colonne, indice=indice)
+    if col is None:
+        return False
 
     try:
+        col_modalite = obtenir_indice_colonne(
+            tableau_des_donnes, nom_colonne=textes.modalite)
         tableau = [
             tableau_des_donnes.item(row, col).text() if not TypeModalite().obtenir_type_mod(
                 tableau_des_donnes) == TypeModalite().numeric and col == 0 else
             float(tableau_des_donnes.item(row, col).text())
             for row in range(tableau_des_donnes.rowCount() - 1)]
+        if col_modalite is not None and col != 0 and not TypeModalite().obtenir_type_mod(
+                tableau_des_donnes) == TypeModalite().numeric:
+            tableau = [
+                tableau_des_donnes.item(row, col).text() if col == col_modalite else
+                float(tableau_des_donnes.item(row, col).text())
+                for row in range(tableau_des_donnes.rowCount() - 1)
+            ]
         return np.array(tableau)
     except AttributeError as e:
         # Ici peut-être on ne trouve pas la bonne colonne ou la ligne a un type 'none'. Il faut donc ouvrir une
@@ -73,10 +116,13 @@ def remplir_colone(tableau: QTableWidget, nom_colone: str, elements: list):
     :param nom_colone:
     :param elements:
     """
-    colonne = entete_et_index[nom_colone]
+    colonne = obtenir_indice_colonne(tableau, nom_colonne=nom_colone)
+    if colonne is None:
+        return
     for ligne in range(tableau.rowCount() - 1):
         try:
-            tableau.setItem(ligne, colonne, QTableWidgetItem(str(elements[ligne])))
+            tableau.setItem(
+                ligne, colonne, QTableWidgetItem(str(elements[ligne])))
         except IndexError:
             continue
 
@@ -114,7 +160,8 @@ def obtenir_fusion_colones(tableau: QTableWidget, liste_des_colones: tuple,
     :param fusion_type:
     :return:
     """
-    big_data = [obtenir_tableau_grace_au_nom(tableau, colone) for colone in liste_des_colones]
+    big_data = [obtenir_tableau_grace_au_nom(
+        tableau, colone) for colone in liste_des_colones]
     if fusion_type == FusionType.addition:
         return np.array(big_data).sum(axis=0)
     elif fusion_type == FusionType.multiplication:
@@ -133,6 +180,7 @@ class ControlTableau:
         """
         Les different problèmes qu'on peut retrouver
         """
+        colonne_effectif_absente = "La colonne des effectifs est absente. Utilisez Tableau > Effectifs."
         celules_vides = "Il y a des cellules vides dans le tableau"
         texte_dans_tableau = "Il y a du texte dans certains endroits du tableau"
 
@@ -181,6 +229,8 @@ class ControlTableau:
         :param tableau:
         :return: Problème du tableau
         """
+        if not colonne_existe(tableau, textes.effectif):
+            return self.ProblemesDuTableau.colonne_effectif_absente
         if not self.celules_remplis(tableau):
             return self.ProblemesDuTableau.celules_vides
         if self.texte_dans_tableau(tableau):
@@ -199,8 +249,10 @@ def donner_les_totaux(tableau: QTableWidget):
     ligne_du_total = tableau.rowCount() - 1
     for colone in range(1, tableau.columnCount()):
         try:
-            somme_colone = obtenir_tableau_grace_au_nom(tableau, indice=colone).sum()
-            tableau.setItem(ligne_du_total, colone, QTableWidgetItem(f"{somme_colone}"))
+            somme_colone = obtenir_tableau_grace_au_nom(
+                tableau, indice=colone).sum()
+            tableau.setItem(ligne_du_total, colone,
+                            QTableWidgetItem(f"{somme_colone}"))
         except AttributeError:
             pass
 
@@ -241,40 +293,44 @@ def completer_colones(tableau: QTableWidget):
     is_numeric = TypeModalite().obtenir_type_mod(tableau) == TypeModalite.numeric
 
     # ─── Xi * Ni ──────────────────────────────────────────────────────────────
-    if entete_et_index[textes.modalite_x_effectif] < tableau.columnCount():
+    if colonne_existe(tableau, textes.modalite_x_effectif):
         try:
             if is_numeric:
                 mods = mods_raw.astype(float)
-                remplir_colone(tableau, textes.modalite_x_effectif, list(stat.modalites_x_effectifs(mods, eff)))
+                remplir_colone(tableau, textes.modalite_x_effectif, list(
+                    stat.modalites_x_effectifs(mods, eff)))
             else:
                 remplir_colone(tableau, textes.modalite_x_effectif, list(eff))
         except Exception as e:
             erreur(e)
 
     # ─── ECC ──────────────────────────────────────────────────────────────────
-    if entete_et_index[textes.ecc] < tableau.columnCount():
+    if colonne_existe(tableau, textes.ecc):
         try:
-            remplir_colone(tableau, textes.ecc, list(stat.effectifs_cumules_croissants(eff)))
+            remplir_colone(tableau, textes.ecc, list(
+                stat.effectifs_cumules_croissants(eff)))
         except Exception as e:
             erreur(e)
 
     # ─── ECD ──────────────────────────────────────────────────────────────────
-    if entete_et_index[textes.ecd] < tableau.columnCount():
+    if colonne_existe(tableau, textes.ecd):
         try:
-            remplir_colone(tableau, textes.ecd, list(stat.effectifs_cumules_decroissants(eff)))
+            remplir_colone(tableau, textes.ecd, list(
+                stat.effectifs_cumules_decroissants(eff)))
         except Exception as e:
             erreur(e)
 
     # ─── Fréquences ──────────────────────────────────────────────────────────
-    if entete_et_index[textes.frequence] < tableau.columnCount():
+    if colonne_existe(tableau, textes.frequence):
         try:
             fi = stat.frequences(eff)
-            remplir_colone(tableau, textes.frequence, [round(float(v), 4) for v in fi])
+            remplir_colone(tableau, textes.frequence, [
+                           round(float(v), 4) for v in fi])
         except Exception as e:
             erreur(e)
 
     # ─── FCC ─────────────────────────────────────────────────────────────────
-    if entete_et_index[textes.fcc] < tableau.columnCount():
+    if colonne_existe(tableau, textes.fcc):
         try:
             remplir_colone(tableau, textes.fcc,
                            [round(float(v), 4) for v in stat.frequences_cumulees_croissantes(eff)])
@@ -282,7 +338,7 @@ def completer_colones(tableau: QTableWidget):
             erreur(e)
 
     # ─── FCD ─────────────────────────────────────────────────────────────────
-    if entete_et_index[textes.fcd] < tableau.columnCount():
+    if colonne_existe(tableau, textes.fcd):
         try:
             remplir_colone(tableau, textes.fcd,
                            [round(float(v), 4) for v in stat.frequences_cumulees_decroissantes(eff)])
@@ -290,7 +346,7 @@ def completer_colones(tableau: QTableWidget):
             erreur(e)
 
     # ─── Centre ──────────────────────────────────────────────────────────────
-    if entete_et_index[textes.centre] < tableau.columnCount():
+    if colonne_existe(tableau, textes.centre):
         try:
             mods_list = [
                 tableau.item(row, 0).text()
@@ -298,12 +354,13 @@ def completer_colones(tableau: QTableWidget):
             ]
             centres = stat.centres_classes(mods_list)
             if centres is not None:
-                remplir_colone(tableau, textes.centre, [round(float(v), 4) for v in centres])
+                remplir_colone(tableau, textes.centre, [
+                               round(float(v), 4) for v in centres])
         except Exception as e:
             erreur(e)
 
     # ─── Amplitude ───────────────────────────────────────────────────────────
-    if entete_et_index[textes.amplitude] < tableau.columnCount():
+    if colonne_existe(tableau, textes.amplitude):
         try:
             mods_list = [
                 tableau.item(row, 0).text()
@@ -311,12 +368,13 @@ def completer_colones(tableau: QTableWidget):
             ]
             amplitudes = stat.amplitudes_classes(mods_list)
             if amplitudes is not None:
-                remplir_colone(tableau, textes.amplitude, [round(float(v), 4) for v in amplitudes])
+                remplir_colone(tableau, textes.amplitude, [
+                               round(float(v), 4) for v in amplitudes])
         except Exception as e:
             erreur(e)
 
     # ─── Densité ─────────────────────────────────────────────────────────────
-    if entete_et_index[textes.densite] < tableau.columnCount():
+    if colonne_existe(tableau, textes.densite):
         try:
             mods_list = [
                 tableau.item(row, 0).text()
@@ -338,7 +396,12 @@ def inserer_colone(tableau: QTableWidget, nom_colone):
     :param tableau:
     :return:
     """
+    initialiser_entete_par_defaut(tableau)
+    if colonne_existe(tableau, nom_colone):
+        return
+
     indice = entete_et_index[nom_colone]
-    # tableau.setColumnCount(tableau.columnCount() + 1)
-    tableau.insertColumn(indice)
-    tableau.setHorizontalHeaderLabels(liste_entete)
+    position = sum(
+        1 for entete in liste_entete[:indice] if colonne_existe(tableau, entete))
+    tableau.insertColumn(position)
+    tableau.setHorizontalHeaderItem(position, QTableWidgetItem(nom_colone))
