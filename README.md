@@ -4,9 +4,9 @@
 
 ## Démonstration
 
-#file:record.webm
+Vidéo de démonstration : [record.webm](https://github.com/Starland9/LandTistik/releases/latest/download/record.webm)
 
-Si l'aperçu ne s'affiche pas, ouvrez directement [record.webm](record.webm).
+La vidéo est publiée avec la dernière release GitHub pour garantir un lien stable.
 
 ---
 

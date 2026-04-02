@@ -101,6 +101,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
       - name: Download packaged artifacts
         uses: actions/download-artifact@v4
         with:
@@ -119,7 +122,9 @@ jobs:
         with:
           tag_name: ${{ steps.meta.outputs.tag }}
           name: ${{ steps.meta.outputs.name }}
-          files: release-artifacts/*.zip
+          files: |
+            release-artifacts/*.zip
+            record.webm
           generate_release_notes: true
           make_latest: true
           draft: false
