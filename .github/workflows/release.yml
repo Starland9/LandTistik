@@ -50,8 +50,9 @@ jobs:
           pip install -r requirements.txt pyinstaller
 
       - name: Build application with PyInstaller
+        shell: bash
         run: |
-          pyinstaller \
+          python -m PyInstaller \
             --noconfirm \
             --clean \
             --windowed \
