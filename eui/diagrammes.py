@@ -3,22 +3,20 @@ Module de visualisation des diagrammes statistiques.
 Prend en charge : bandes (barres), camembert, ogive, polygone des fréquences, nuage de points.
 """
 
-import numpy as np
-import matplotlib
-matplotlib.use("QtAgg")
-import matplotlib.pyplot as plt
-from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
-from matplotlib.figure import Figure
-
+from models.Entete import textes as col
+from models import Tableau_statistique as ts
+from cui import diagrammes as cui_diag
+from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import (
     QMainWindow, QTableWidget, QWidget, QVBoxLayout,
     QHBoxLayout, QPushButton, QComboBox, QLabel, QSizePolicy
 )
-from PyQt6.QtCore import Qt
-
-from cui import diagrammes as cui_diag
-from models import Tableau_statistique as ts
-from models.Entete import textes as col
+from matplotlib.figure import Figure
+from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
+import matplotlib.pyplot as plt
+import numpy as np
+import matplotlib
+matplotlib.use("QtAgg")
 
 
 _TYPES = {
@@ -38,7 +36,8 @@ class _MplCanvas(FigureCanvas):
         self.fig = Figure(figsize=(8, 5), tight_layout=True)
         self.axes = self.fig.add_subplot(111)
         super().__init__(self.fig)
-        self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
+        self.setSizePolicy(QSizePolicy.Policy.Expanding,
+                           QSizePolicy.Policy.Expanding)
 
 
 class Diagrammes(QMainWindow, cui_diag.Ui_MainWindow):
@@ -105,7 +104,8 @@ class Diagrammes(QMainWindow, cui_diag.Ui_MainWindow):
                 self._erreur_tracé("Données insuffisantes dans le tableau.")
                 return
 
-            is_numeric = ts.TypeModalite().obtenir_type_mod(self.tableau) == ts.TypeModalite.numeric
+            is_numeric = ts.TypeModalite().obtenir_type_mod(
+                self.tableau) == ts.TypeModalite.numeric
 
             if type_diagramme == "bandes":
                 self._bandes(x_raw, y_raw, is_numeric)
@@ -125,14 +125,18 @@ class Diagrammes(QMainWindow, cui_diag.Ui_MainWindow):
         except Exception as e:
             self._erreur_tracé(str(e))
 
-        self.canvas.fig.tight_layout()
-        self.canvas.draw()
+        try:
+            self.canvas.fig.tight_layout()
+            self.canvas.draw()
+        except Exception as e:
+            self._erreur_tracé(str(e))
 
     def _bandes(self, x, y, is_numeric: bool):
         """Diagramme en barres des effectifs."""
         ax = self.canvas.axes
         x_labels = [str(v) for v in x]
-        bars = ax.bar(range(len(y)), y, color="#1e71a3", edgecolor="white", alpha=0.85)
+        bars = ax.bar(range(len(y)), y, color="#1e71a3",
+                      edgecolor="white", alpha=0.85)
         ax.set_xticks(range(len(x_labels)))
         ax.set_xticklabels(x_labels, rotation=30, ha="right")
         ax.set_xlabel(col.modalite)
@@ -184,11 +188,13 @@ class Diagrammes(QMainWindow, cui_diag.Ui_MainWindow):
         fi = frequences(y.astype(float))
         if is_numeric:
             x_vals = x.astype(float)
-            ax.plot(x_vals, fi, marker="o", color="#4caf50", linewidth=2, markersize=6)
+            ax.plot(x_vals, fi, marker="o", color="#4caf50",
+                    linewidth=2, markersize=6)
             ax.fill_between(x_vals, fi, alpha=0.2, color="#4caf50")
         else:
             x_pos = np.arange(len(fi))
-            ax.plot(x_pos, fi, marker="o", color="#4caf50", linewidth=2, markersize=6)
+            ax.plot(x_pos, fi, marker="o", color="#4caf50",
+                    linewidth=2, markersize=6)
             ax.fill_between(x_pos, fi, alpha=0.2, color="#4caf50")
             ax.set_xticks(x_pos)
             ax.set_xticklabels([str(v) for v in x], rotation=30, ha="right")
@@ -202,11 +208,13 @@ class Diagrammes(QMainWindow, cui_diag.Ui_MainWindow):
         ax = self.canvas.axes
         if is_numeric:
             x_vals = x.astype(float)
-            ax.scatter(x_vals, y.astype(float), color="#9c27b0", alpha=0.8, edgecolors="white", s=60)
+            ax.scatter(x_vals, y.astype(float), color="#9c27b0",
+                       alpha=0.8, edgecolors="white", s=60)
             ax.set_xlabel(col.modalite)
         else:
             x_pos = np.arange(len(y))
-            ax.scatter(x_pos, y.astype(float), color="#9c27b0", alpha=0.8, edgecolors="white", s=60)
+            ax.scatter(x_pos, y.astype(float), color="#9c27b0",
+                       alpha=0.8, edgecolors="white", s=60)
             ax.set_xticks(x_pos)
             ax.set_xticklabels([str(v) for v in x], rotation=30, ha="right")
             ax.set_xlabel(col.modalite)
@@ -218,7 +226,8 @@ class Diagrammes(QMainWindow, cui_diag.Ui_MainWindow):
         """Boîte à moustaches (box plot)."""
         ax = self.canvas.axes
         if not is_numeric:
-            self._erreur_tracé("La boîte à moustaches nécessite des modalités numériques.")
+            self._erreur_tracé(
+                "La boîte à moustaches nécessite des modalités numériques.")
             return
         expanded = np.repeat(x.astype(float), y.astype(int))
         bp = ax.boxplot(expanded, vert=True, patch_artist=True,
@@ -244,4 +253,3 @@ class Diagrammes(QMainWindow, cui_diag.Ui_MainWindow):
         )
         if filename:
             self.canvas.fig.savefig(filename, dpi=150, bbox_inches="tight")
-

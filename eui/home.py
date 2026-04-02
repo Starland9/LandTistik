@@ -35,7 +35,8 @@ class Home(QMainWindow, home.Ui_MainWindow):
 
         self._configurer_interface()
         self.gestion_des_actions()
-        self.statusBar().showMessage("Bienvenue dans LandTistik — logiciel de statistiques pour étudiants")
+        self.statusBar().showMessage(
+            "Bienvenue dans LandTistik — logiciel de statistiques pour étudiants")
 
     # ─── Configuration initiale de l'interface ────────────────────────────────
 
@@ -98,22 +99,31 @@ class Home(QMainWindow, home.Ui_MainWindow):
         self.actionNouveau.triggered.connect(self.nouveau_fichier)
         self.action_Ouvrir.triggered.connect(self.ouvrir_fichier)
         self.action_Enregistrer.triggered.connect(self.enregistrer_fichier)
-        self.actionEnregistrer_sous.triggered.connect(self.enregistrer_fichier_sous)
+        self.actionEnregistrer_sous.triggered.connect(
+            self.enregistrer_fichier_sous)
         self.actionQuitter.triggered.connect(QApplication.quit)
 
         # Menu Édition
-        self.action_Reinitialiser_les_donn_es.triggered.connect(self._reinitialiser)
+        self.action_Reinitialiser_les_donn_es.triggered.connect(
+            self._reinitialiser)
 
         # Menu Diagrammes
-        self.actionBandes.triggered.connect(lambda: self.voir_diagrammes("bandes"))
-        self.actionCamamberg.triggered.connect(lambda: self.voir_diagrammes("camembert"))
-        self.actionNuage_de_points.triggered.connect(lambda: self.voir_diagrammes("nuage"))
-        self.actionTrac.triggered.connect(lambda: self.voir_diagrammes("ogive"))
-        self.actionCourb.triggered.connect(lambda: self.voir_diagrammes("courbe"))
+        self.actionBandes.triggered.connect(
+            lambda: self.voir_diagrammes("bandes"))
+        self.actionCamamberg.triggered.connect(
+            lambda: self.voir_diagrammes("camembert"))
+        self.actionNuage_de_points.triggered.connect(
+            lambda: self.voir_diagrammes("nuage"))
+        self.actionTrac.triggered.connect(
+            lambda: self.voir_diagrammes("ogive"))
+        self.actionCourb.triggered.connect(
+            lambda: self.voir_diagrammes("courbe"))
 
         # Menu Personnalisation — thèmes
-        self.action_Clair.triggered.connect(lambda: self._changer_theme("light"))
-        self.action_Sombre.triggered.connect(lambda: self._changer_theme("dark"))
+        self.action_Clair.triggered.connect(
+            lambda: self._changer_theme("light"))
+        self.action_Sombre.triggered.connect(
+            lambda: self._changer_theme("dark"))
 
         # Menu Aide
         self.actionA_prop_os.triggered.connect(self._afficher_apropos)
@@ -131,8 +141,10 @@ class Home(QMainWindow, home.Ui_MainWindow):
         self.actionExportCSV = QAction("Exporter CSV...", self)
         self.actionExportCSV.setShortcut("Ctrl+E")
 
-        self.menu_Fichier.insertAction(self.actionQuitter, self.actionImportCSV)
-        self.menu_Fichier.insertAction(self.actionQuitter, self.actionExportCSV)
+        self.menu_Fichier.insertAction(
+            self.actionQuitter, self.actionImportCSV)
+        self.menu_Fichier.insertAction(
+            self.actionQuitter, self.actionExportCSV)
 
         self.actionImportCSV.triggered.connect(self._importer_csv)
         self.actionExportCSV.triggered.connect(self._exporter_csv)
@@ -159,10 +171,12 @@ class Home(QMainWindow, home.Ui_MainWindow):
         """Supprime la ligne sélectionnée (sauf la ligne TOTAL)."""
         current = self.tab.currentRow()
         if current < 0:
-            QMessageBox.information(self, "Supprimer", "Veuillez sélectionner une ligne à supprimer.")
+            QMessageBox.information(
+                self, "Supprimer", "Veuillez sélectionner une ligne à supprimer.")
             return
         if current == self.tab.rowCount() - 1:
-            QMessageBox.warning(self, "Supprimer", "Impossible de supprimer la ligne TOTAL.")
+            QMessageBox.warning(self, "Supprimer",
+                                "Impossible de supprimer la ligne TOTAL.")
             return
         self.tab.removeRow(current)
         self.statusBar().showMessage("Ligne supprimée")
@@ -199,7 +213,8 @@ class Home(QMainWindow, home.Ui_MainWindow):
         self.fichier_courant = ouvrir_un_fichier(self, self.tab)
         if self.fichier_courant:
             self.setWindowTitle(f"LandTistik — {self.fichier_courant}")
-            self.statusBar().showMessage(f"Fichier ouvert : {self.fichier_courant}")
+            self.statusBar().showMessage(
+                f"Fichier ouvert : {self.fichier_courant}")
 
     def enregistrer_fichier(self):
         """Enregistre le fichier courant (ou ouvre 'Enregistrer sous' si aucun)."""
@@ -210,7 +225,8 @@ class Home(QMainWindow, home.Ui_MainWindow):
                 enregistrer_fichier(self.fichier_courant, self.tab)
             if self.fichier_courant:
                 self.setWindowTitle(f"LandTistik — {self.fichier_courant}")
-                self.statusBar().showMessage(f"Fichier enregistré : {self.fichier_courant}")
+                self.statusBar().showMessage(
+                    f"Fichier enregistré : {self.fichier_courant}")
 
     def enregistrer_fichier_sous(self):
         """Enregistre dans un nouveau fichier .ltk."""
@@ -218,7 +234,8 @@ class Home(QMainWindow, home.Ui_MainWindow):
             self.fichier_courant = enregistrer_fichier_sous(self, self.tab)
             if self.fichier_courant:
                 self.setWindowTitle(f"LandTistik — {self.fichier_courant}")
-                self.statusBar().showMessage(f"Fichier enregistré : {self.fichier_courant}")
+                self.statusBar().showMessage(
+                    f"Fichier enregistré : {self.fichier_courant}")
             return bool(self.fichier_courant)
         return False
 
@@ -237,7 +254,8 @@ class Home(QMainWindow, home.Ui_MainWindow):
         result = exporter_csv(self, self.tab)
         if result:
             self.statusBar().showMessage(f"CSV exporté : {result}")
-            QMessageBox.information(self, "Export réussi", f"Données exportées vers :\n{result}")
+            QMessageBox.information(
+                self, "Export réussi", f"Données exportées vers :\n{result}")
 
     def nouveau_fichier(self):
         """Crée un nouveau fichier en sauvegardant d'abord l'actuel."""
@@ -312,8 +330,10 @@ class Home(QMainWindow, home.Ui_MainWindow):
         resume = stat.resume_statistique(mods, eff)
 
         # Mise à jour des spinbox existants
-        self.moyenne_artihmetique_double_spin.setValue(resume["Moyenne arithmétique"])
-        self.moyenneGOmTriqueDoubleSpinBox.setValue(resume["Moyenne géométrique"])
+        self.moyenne_artihmetique_double_spin.setValue(
+            resume["Moyenne arithmétique"])
+        self.moyenneGOmTriqueDoubleSpinBox.setValue(
+            resume["Moyenne géométrique"])
         self.tauxDeVariationDoubleSpinBox.setValue(
             stat.taux_de_variation(mods)
         )
@@ -368,20 +388,23 @@ class Home(QMainWindow, home.Ui_MainWindow):
         if not self.completer_le_tableau():
             return
         self.window_diagrammes = diagrammes.Diagrammes(self.tab)
-        self.window_diagrammes.afficher(type_diagramme)
+        # doit précéder afficher() pour initialiser le rendu Qt
         self.window_diagrammes.show()
+        self.window_diagrammes.afficher(type_diagramme)
 
     # ─── Thèmes ───────────────────────────────────────────────────────────────
 
     def _changer_theme(self, theme: str):
         """Change le thème de l'application (dark/light)."""
         try:
-            import pyqtdarktheme
+            import qdarktheme as pyqtdarktheme
             QApplication.instance().setStyleSheet(pyqtdarktheme.load_stylesheet(theme))
             self._theme_sombre = (theme == "dark")
-            self.statusBar().showMessage(f"Thème {'sombre' if theme == 'dark' else 'clair'} appliqué")
+            self.statusBar().showMessage(
+                f"Thème {'sombre' if theme == 'dark' else 'clair'} appliqué")
         except ImportError:
-            QMessageBox.warning(self, "Thème", "Module pyqtdarktheme non disponible.")
+            QMessageBox.warning(
+                self, "Thème", "Module pyqtdarktheme non disponible.")
 
     # ─── Aide / À propos ──────────────────────────────────────────────────────
 
@@ -404,4 +427,3 @@ class Home(QMainWindow, home.Ui_MainWindow):
             </ul>
             """
         )
-

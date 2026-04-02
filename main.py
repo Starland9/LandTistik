@@ -3,7 +3,7 @@ LandTistik — Logiciel de statistiques open-source pour étudiants.
 """
 
 import sys
-import pyqtdarktheme
+import qdarktheme as pyqtdarktheme
 from PyQt6.QtWidgets import QApplication
 
 from eui import home
@@ -14,4 +14,3 @@ if __name__ == '__main__':
     window = home.Home()
     window.showMaximized()
     sys.exit(app.exec())
-
