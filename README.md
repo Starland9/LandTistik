@@ -2,6 +2,12 @@
 
 **LandTistik** est un logiciel de statistiques open-source conçu pour être simple, puissant et moderne. Idéal pour les étudiants en statistiques, mathématiques et sciences des données.
 
+## Démonstration
+
+#file:record.webm
+
+Si l'aperçu ne s'affiche pas, ouvrez directement [record.webm](record.webm).
+
 ---
 
 ## 🚀 Fonctionnalités
