@@ -1,0 +1,125 @@
+name: Release LandTistik
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-main
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Build ${{ matrix.target }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            target: linux-x64
+            bundle_path: dist/LandTistik
+            archive_name: LandTistik-linux-x64
+          - os: windows-latest
+            target: windows-x64
+            bundle_path: dist/LandTistik
+            archive_name: LandTistik-windows-x64
+          - os: macos-latest
+            target: macos
+            bundle_path: dist/LandTistik.app
+            archive_name: LandTistik-macos
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt pyinstaller
+
+      - name: Build application with PyInstaller
+        run: |
+          pyinstaller \
+            --noconfirm \
+            --clean \
+            --windowed \
+            --name LandTistik \
+            --collect-all qdarktheme \
+            main.py
+
+      - name: Archive build output
+        shell: bash
+        env:
+          BUNDLE_PATH: ${{ matrix.bundle_path }}
+          ARCHIVE_NAME: ${{ matrix.archive_name }}
+        run: |
+          python - <<'PY'
+          import os
+          import shutil
+          from pathlib import Path
+
+          bundle_path = Path(os.environ["BUNDLE_PATH"])
+          archive_name = os.environ["ARCHIVE_NAME"]
+          if not bundle_path.exists():
+              raise SystemExit(f"Build output not found: {bundle_path}")
+
+          output_dir = Path("release-artifacts")
+          output_dir.mkdir(exist_ok=True)
+          archive_base = output_dir / archive_name
+          shutil.make_archive(
+              str(archive_base),
+              "zip",
+              root_dir=bundle_path.parent,
+              base_dir=bundle_path.name,
+          )
+          print(f"Created {archive_base}.zip")
+          PY
+
+      - name: Upload packaged artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.archive_name }}
+          path: release-artifacts/${{ matrix.archive_name }}.zip
+          if-no-files-found: error
+
+  release:
+    name: Publish release
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download packaged artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: release-artifacts
+          merge-multiple: true
+
+      - name: Compute release metadata
+        id: meta
+        shell: bash
+        run: |
+          echo "tag=landtistik-${GITHUB_RUN_NUMBER}" >> "$GITHUB_OUTPUT"
+          echo "name=LandTistik" >> "$GITHUB_OUTPUT"
+
+      - name: Create GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.meta.outputs.tag }}
+          name: ${{ steps.meta.outputs.name }}
+          files: release-artifacts/*.zip
+          generate_release_notes: true
+          make_latest: true
+          draft: false
+          prerelease: false
