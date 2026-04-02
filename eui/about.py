@@ -1,11 +1,8 @@
+from cui import about
+from PyQt6.QtWidgets import QDialog
 
-        
-import about
-from PyQt6.QtWidgets import QMainWindow
 
-class About(QMainWindow, about.Ui_MainWindow):
-    def __init__(self):
-        super().__init__()
+class About(QDialog, about.Ui_MainWindow):
+    def __init__(self, parent=None):
+        super().__init__(parent)
         self.setupUi(self)
-        
-        

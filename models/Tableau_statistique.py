@@ -6,8 +6,8 @@ import numpy as np
 from PyQt6.QtWidgets import QTableWidget, QTableWidgetItem
 
 
-from Models.Entete import entete_et_index, liste_entete, textes
-from Models.Entre_sorti import erreur
+from models.Entete import entete_et_index, liste_entete, textes
+from models.Entre_sorti import erreur
 
 
 def nettoyer_tableau(tableau: QTableWidget):
@@ -226,24 +226,108 @@ def completer_colones(tableau: QTableWidget):
     si ce sont des chiffres, on fait mod * effectif
     si ce sont des chars, on fait mod * eff = eff
 
+    Calcule également ECC, ECD, Fréquences, FCC, FCD, Centre, Amplitude et Densité si les colonnes existent.
+
     :param tableau:
     :return:
     """
+    import models.Statistiques as stat
 
-    #     Completer les modalites fois les effectifs
-
-    mods = obtenir_tableau_grace_au_nom(tableau, textes.modalite)
+    mods_raw = obtenir_tableau_grace_au_nom(tableau, textes.modalite)
     eff = obtenir_tableau_grace_au_nom(tableau, textes.effectif)
-    if TypeModalite().obtenir_type_mod(tableau) == TypeModalite.numeric:
+    if eff is False or mods_raw is False:
+        return
+
+    is_numeric = TypeModalite().obtenir_type_mod(tableau) == TypeModalite.numeric
+
+    # ─── Xi * Ni ──────────────────────────────────────────────────────────────
+    if entete_et_index[textes.modalite_x_effectif] < tableau.columnCount():
         try:
-            remplir_colone(tableau, textes.modalite_x_effectif, list(mods * eff))
+            if is_numeric:
+                mods = mods_raw.astype(float)
+                remplir_colone(tableau, textes.modalite_x_effectif, list(stat.modalites_x_effectifs(mods, eff)))
+            else:
+                remplir_colone(tableau, textes.modalite_x_effectif, list(eff))
         except Exception as e:
             erreur(e)
-    else:
-        remplir_colone(tableau, Entete.textes.modalite_x_effectif, list(eff))
 
-    # mod_x_eff = obtenir_tableau_grace_au_nom(tableau, Entete.textes.modalite_x_effectif)
-    # remplir_colone(tableau, Entete.textes.ecc, list(mod_x_eff.cumsum()))
+    # ─── ECC ──────────────────────────────────────────────────────────────────
+    if entete_et_index[textes.ecc] < tableau.columnCount():
+        try:
+            remplir_colone(tableau, textes.ecc, list(stat.effectifs_cumules_croissants(eff)))
+        except Exception as e:
+            erreur(e)
+
+    # ─── ECD ──────────────────────────────────────────────────────────────────
+    if entete_et_index[textes.ecd] < tableau.columnCount():
+        try:
+            remplir_colone(tableau, textes.ecd, list(stat.effectifs_cumules_decroissants(eff)))
+        except Exception as e:
+            erreur(e)
+
+    # ─── Fréquences ──────────────────────────────────────────────────────────
+    if entete_et_index[textes.frequence] < tableau.columnCount():
+        try:
+            fi = stat.frequences(eff)
+            remplir_colone(tableau, textes.frequence, [round(float(v), 4) for v in fi])
+        except Exception as e:
+            erreur(e)
+
+    # ─── FCC ─────────────────────────────────────────────────────────────────
+    if entete_et_index[textes.fcc] < tableau.columnCount():
+        try:
+            remplir_colone(tableau, textes.fcc,
+                           [round(float(v), 4) for v in stat.frequences_cumulees_croissantes(eff)])
+        except Exception as e:
+            erreur(e)
+
+    # ─── FCD ─────────────────────────────────────────────────────────────────
+    if entete_et_index[textes.fcd] < tableau.columnCount():
+        try:
+            remplir_colone(tableau, textes.fcd,
+                           [round(float(v), 4) for v in stat.frequences_cumulees_decroissantes(eff)])
+        except Exception as e:
+            erreur(e)
+
+    # ─── Centre ──────────────────────────────────────────────────────────────
+    if entete_et_index[textes.centre] < tableau.columnCount():
+        try:
+            mods_list = [
+                tableau.item(row, 0).text()
+                for row in range(tableau.rowCount() - 1)
+            ]
+            centres = stat.centres_classes(mods_list)
+            if centres is not None:
+                remplir_colone(tableau, textes.centre, [round(float(v), 4) for v in centres])
+        except Exception as e:
+            erreur(e)
+
+    # ─── Amplitude ───────────────────────────────────────────────────────────
+    if entete_et_index[textes.amplitude] < tableau.columnCount():
+        try:
+            mods_list = [
+                tableau.item(row, 0).text()
+                for row in range(tableau.rowCount() - 1)
+            ]
+            amplitudes = stat.amplitudes_classes(mods_list)
+            if amplitudes is not None:
+                remplir_colone(tableau, textes.amplitude, [round(float(v), 4) for v in amplitudes])
+        except Exception as e:
+            erreur(e)
+
+    # ─── Densité ─────────────────────────────────────────────────────────────
+    if entete_et_index[textes.densite] < tableau.columnCount():
+        try:
+            mods_list = [
+                tableau.item(row, 0).text()
+                for row in range(tableau.rowCount() - 1)
+            ]
+            amplitudes = stat.amplitudes_classes(mods_list)
+            if amplitudes is not None:
+                remplir_colone(tableau, textes.densite,
+                               [round(float(v), 4) for v in stat.densites(eff, amplitudes)])
+        except Exception as e:
+            erreur(e)
 
 
 def inserer_colone(tableau: QTableWidget, nom_colone):
